@@ -16,6 +16,8 @@ const banner =
   ' */'
 
 const aliases = require('./alias')
+
+// 找到对应文件
 const resolve = p => {
   const base = p.split('/')[0]
   if (aliases[base]) {
@@ -31,6 +33,32 @@ const consolidatePath = require.resolve('@vue/consolidate/package.json', {
   paths: [path.resolve(__dirname, '../packages/compiler-sfc')]
 })
 
+// 配置信息完全遵循Rollup的构建规则
+// 如果对format选项不清楚：看看https://juejin.cn/post/7051236803344334862#heading-13就明白了
+// Runtime only VS Runtime + Compiler  参考链接：https://blog.csdn.net/weixin_43974265/article/details/112743656
+/**
+ * 在Vue.js框架中，`Runtime + Compiler`和`Runtime-only`是两种不同的构建方式，它们在性能、功能和使用场景上有所区别：
+
+1. **体积和性能**：
+   - `Runtime-only`模式比`Runtime + Compiler`模式轻量，大约轻6KB（经过gzip压缩后）。这是因为`Runtime-only`模式不包含模板编译器，因此减少了最终打包文件的大小，从而可能提高加载速度和性能。
+   - `Runtime-only`模式在运行时性能更好，因为它省去了模板编译的过程。
+
+2. **模板和渲染函数**：
+   - `Runtime + Compiler`模式允许在非.vue文件中使用模板（template），因为编译器会在运行时将模板编译成渲染函数（render function）。
+   - `Runtime-only`模式只允许在.vue文件中使用模板，而在其他地方必须使用渲染函数。这是因为`Runtime-only`模式在构建时已经将模板预编译为渲染函数，运行时不再进行编译。
+
+3. **编译过程**：
+   - `Runtime + Compiler`模式在运行时进行模板编译，这可能会对性能产生一定影响，尤其是在大型或复杂的应用程序中。
+   - `Runtime-only`模式在构建时通过构建工具（如webpack）预编译模板，因此运行时不需要编译，这样可以减少运行时的性能损耗。
+
+4. **使用场景**：
+   - 如果你需要在客户端编译模板，比如传入一个字符串给`template`选项，或者挂载到一个元素上并使用其DOM内部的HTML作为模板，那么你需要`Runtime + Compiler`模式。
+   - 如果你主要使用单文件组件（.vue文件），并且希望获得更好的性能和更小的打包体积，那么`Runtime-only`模式是更好的选择。
+
+总结来说：
+- `Runtime-only`模式适用于大多数生产环境，因为它提供了更好的性能和更小的体积。而`Runtime + Compiler`模式则适用于需要在客户端编译模板的场景，或者在开发环境中使用，以便能够实时编译模板。
+-  所以通常我们更推荐使用Runtime-Only的Vue.js, 分析源码还是用Runtime-Compiler 因为前者少了编译的过程，不利于学习。
+*/
 const builds = {
   // Runtime only (CommonJS). Used by bundlers e.g. Webpack & Browserify
   'runtime-cjs-dev': {

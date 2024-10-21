@@ -8,9 +8,11 @@ if (!fs.existsSync('dist')) {
   fs.mkdirSync('dist')
 }
 
+// 从配置文件中读取配置
 let builds = require('./config').getAllBuilds()
 
 // filter builds via command line arg
+// 通过命令行参数对构建配置做过滤，这样就可以构建出不同用途的Vue.js
 if (process.argv[2]) {
   const filters = process.argv[2].split(',')
   builds = builds.filter(b => {
