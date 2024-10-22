@@ -4,6 +4,7 @@ import type { VNodeComponentOptions, VNodeData } from 'types/vnode'
 
 /**
  * @internal
+ * 虚拟节点定义
  */
 export default class VNode {
   tag?: string

@@ -24,6 +24,7 @@ const ALWAYS_NORMALIZE = 2
 
 // wrapper function for providing a more flexible interface
 // without getting yelled at by flow
+// 用于创建vnode，也就是虚拟Node
 export function createElement(
   context: Component,
   tag: any,
@@ -43,6 +44,15 @@ export function createElement(
   return _createElement(context, tag, data, children, normalizationType)
 }
 
+/**
+ *
+ * @param context 表示 VNode 的上下文环境
+ * @param tag 表示标签
+ * @param data 表示 VNode 的数据
+ * @param children 表示当前 VNode 的子节点
+ * @param normalizationType  表示子节点规范的类型
+ * @returns
+ */
 export function _createElement(
   context: Component,
   tag?: string | Component | Function | Object,
@@ -50,6 +60,7 @@ export function _createElement(
   children?: any,
   normalizationType?: number
 ): VNode | Array<VNode> {
+  // 63~99行代码 属于规范 children
   if (isDef(data) && isDef((data as any).__ob__)) {
     __DEV__ &&
       warn(
@@ -91,6 +102,8 @@ export function _createElement(
   if (typeof tag === 'string') {
     let Ctor
     ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag)
+    // isReservedTag方法定义位置：D:\frontend\vue\vue\src\platforms\web\util\element.ts
+    // 查看是不是内置节点
     if (config.isReservedTag(tag)) {
       // platform built-in elements
       if (
@@ -116,16 +129,20 @@ export function _createElement(
       (!data || !data.pre) &&
       isDef((Ctor = resolveAsset(context.$options, 'components', tag)))
     ) {
+      // 如果不是内置节点,而是已注册的组件名
+      // 则通过 createComponent 创建一个组件类型的 VNode
       // component
       vnode = createComponent(Ctor, data, context, children, tag)
     } else {
       // unknown or unlisted namespaced elements
       // check at runtime because it may get assigned a namespace when its
       // parent normalizes children
+      // 创建一个未知的标签的 VNode
       vnode = new VNode(tag, data, children, undefined, undefined, context)
     }
   } else {
     // direct component options / constructor
+    // 如果是 tag 一个 Component 类型，则直接调用 createComponent 创建一个组件类型的 VNode 节点
     vnode = createComponent(tag as any, data, context, children)
   }
   if (isArray(vnode)) {

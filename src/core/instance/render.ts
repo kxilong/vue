@@ -100,6 +100,7 @@ export function renderMixin(Vue: typeof Component) {
     return nextTick(fn, this)
   }
 
+  // 它用来把实例渲染成一个虚拟 Node
   Vue.prototype._render = function (): VNode {
     const vm: Component = this
     const { render, _parentVnode } = vm.$options
@@ -126,6 +127,7 @@ export function renderMixin(Vue: typeof Component) {
     try {
       setCurrentInstance(vm)
       currentRenderingInstance = vm
+      // 通过执行 createElement 方法并返回的是 vnode
       vnode = render.call(vm._renderProxy, vm.$createElement)
     } catch (e: any) {
       handleError(e, vm, `render`)

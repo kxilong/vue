@@ -39,6 +39,7 @@ export function initMixin(Vue: typeof Component) {
     vm._scope.parent = undefined
     vm._scope._vm = true
     // merge options
+    // 合并配置
     if (options && options._isComponent) {
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
@@ -59,10 +60,14 @@ export function initMixin(Vue: typeof Component) {
     }
     // expose real self
     vm._self = vm
+    // 初始化生命周期
     initLifecycle(vm)
+    // 初始化事件中心
     initEvents(vm)
+    // 初始化渲染
     initRender(vm)
     callHook(vm, 'beforeCreate', undefined, false /* setContext */)
+    // 初始化 data、props、computed、watcher 等等
     initInjections(vm) // resolve injections before data/props
     initState(vm)
     initProvide(vm) // resolve provide after data/props
@@ -75,7 +80,9 @@ export function initMixin(Vue: typeof Component) {
       measure(`vue ${vm._name} init`, startTag, endTag)
     }
 
+    // 挂载
     if (vm.$options.el) {
+      // src\platforms\web\runtime-with-compiler.ts
       vm.$mount(vm.$options.el)
     }
   }

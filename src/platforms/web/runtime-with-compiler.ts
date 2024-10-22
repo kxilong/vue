@@ -25,6 +25,7 @@ Vue.prototype.$mount = function (
   el = el && query(el)
 
   /* istanbul ignore if */
+  // 对 el 做了限制, Vue 不能挂载在 body、html 这样的根节点上 - 只能挂载到普通元素
   if (el === document.body || el === document.documentElement) {
     __DEV__ &&
       warn(
@@ -35,6 +36,7 @@ Vue.prototype.$mount = function (
 
   const options = this.$options
   // resolve template/el and convert to render function
+  // 如果没有定义 render 方法，则会把 el 或者 template 字符串转换成 render 方法
   if (!options.render) {
     let template = options.template
     if (template) {
@@ -67,6 +69,7 @@ Vue.prototype.$mount = function (
         mark('compile')
       }
 
+      // 转换成 render 方法
       const { render, staticRenderFns } = compileToFunctions(
         template,
         {
