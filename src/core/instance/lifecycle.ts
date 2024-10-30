@@ -60,6 +60,10 @@ export function initLifecycle(vm: Component) {
 }
 
 export function lifecycleMixin(Vue: typeof Component) {
+  /**
+   * 它被调用的时机有 2 个: 一个是首次渲染，一个是数据更新的时候；
+   * _update 方法的作用是把 VNode 渲染成真实的 DOM
+   */
   Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
     const vm: Component = this
     const prevEl = vm.$el
@@ -68,6 +72,8 @@ export function lifecycleMixin(Vue: typeof Component) {
     vm._vnode = vnode
     // Vue.prototype.__patch__ is injected in entry points
     // based on the rendering backend used.
+    // 核心就是调用 vm.__patch__ 方法
+    // 方法代码位置: src\platforms\web\runtime\index.ts
     if (!prevVnode) {
       // initial render
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */)
@@ -196,6 +202,8 @@ export function mountComponent(
       measure(`vue ${name} patch`, startTag, endTag)
     }
   } else {
+    // vm._render 方法先生成虚拟 Node，最终调用 vm._update 更新 DOM
+    // _update方法位置:src\core\instance\lifecycle.ts
     updateComponent = () => {
       vm._update(vm._render(), hydrating)
     }
@@ -217,6 +225,7 @@ export function mountComponent(
   // we set this to vm._watcher inside the watcher's constructor
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined
+  // 先实例化一个渲染Watcher，在它的回调函数中会调用 updateComponent 方法
   new Watcher(
     vm,
     updateComponent,
