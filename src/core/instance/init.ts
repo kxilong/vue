@@ -15,6 +15,7 @@ let uid = 0
 
 export function initMixin(Vue: typeof Component) {
   Vue.prototype._init = function (options?: Record<string, any>) {
+    // 合并配置
     const vm: Component = this
     // a uid
     vm._uid = uid++
@@ -59,8 +60,11 @@ export function initMixin(Vue: typeof Component) {
     }
     // expose real self
     vm._self = vm
+    // 初始化生命周期
     initLifecycle(vm)
+    // 初始化事件中心
     initEvents(vm)
+    // 初始化渲染
     initRender(vm)
     callHook(vm, 'beforeCreate', undefined, false /* setContext */)
     initInjections(vm) // resolve injections before data/props
