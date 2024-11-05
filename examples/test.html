@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Vue 源码解读</title>
+  </head>
+  <body>
+    <div id="app">
+      {{ msg }}
+      <runoob></runoob>
+    </div>
+    <script src="../dist/vue.js"></script>
+    <script>
+      var Child = {
+        template: '<h1>自定义组件!</h1>'
+      }
+
+      // debugger
+      const vue = new Vue({
+        el: '#app',
+        components: {
+          // <runoob> 将只在父模板可用
+          runoob: Child
+        },
+        data: {
+          msg: 'hello vue'
+        }
+      })
+      // console.log(vue)
+    </script>
+  </body>
+</html>

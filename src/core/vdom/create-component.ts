@@ -109,10 +109,13 @@ export function createComponent(
     return
   }
 
+  // baseCtor实际上是Vue
   const baseCtor = context.$options._base
 
   // plain options object: turn it into a constructor
   if (isObject(Ctor)) {
+    // src/core/global-api/extend.ts
+    //    * 构造Vue的子类
     Ctor = baseCtor.extend(Ctor as typeof Component)
   }
 
@@ -188,9 +191,11 @@ export function createComponent(
   }
 
   // install component management hooks onto the placeholder node
+  // 安装组件钩子函数🪝
   installComponentHooks(data)
 
   // return a placeholder vnode
+  // 返回一个实例化VNode 不同于普通元素节点的是，组件vnode是没有children的
   // @ts-expect-error
   const name = getComponentName(Ctor.options) || tag
   const vnode = new VNode(

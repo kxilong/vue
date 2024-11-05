@@ -35,6 +35,7 @@ export function initExtend(Vue: GlobalAPI) {
     const Sub = function VueComponent(this: any, options: any) {
       this._init(options)
     } as unknown as typeof Component
+    // 继承方式：原型链继承
     Sub.prototype = Object.create(Super.prototype)
     Sub.prototype.constructor = Sub
     Sub.cid = cid++

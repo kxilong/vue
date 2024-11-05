@@ -62,7 +62,7 @@ export function initLifecycle(vm: Component) {
 export function lifecycleMixin(Vue: typeof Component) {
   /**
    * 它被调用的时机有 2 个: 一个是首次渲染，一个是数据更新的时候；
-   * _update 方法的作用是把 VNode 渲染成真实的 DOM
+   * _update 方法的作用是把 VNode 转换成真实的DOM节点
    */
   Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
     const vm: Component = this
