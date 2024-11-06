@@ -27,6 +27,13 @@ export function initProvide(vm: Component) {
   }
 }
 
+/**
+ *
+ * @param vm
+ * 初始化 inject 配置项
+ *  1. 得到 result[key] = val
+ *  2. 对结果数据进行响应式处理，代理每个key 到 vm 实例中
+ */
 export function initInjections(vm: Component) {
   const result = resolveInject(vm.$options.inject, vm)
   if (result) {

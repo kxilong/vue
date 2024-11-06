@@ -14,7 +14,6 @@ let uid = 0
 export function initMixin(Vue: typeof Component) {
   // 负责 Vue 的初始化过程
   Vue.prototype._init = function (options?: Record<string, any>) {
-    console.log(options)
     // vue 实例
     const vm: Component = this
     // 每个 vue 实例都有一个 _uid，并且是依次递增的
@@ -83,6 +82,8 @@ export function initMixin(Vue: typeof Component) {
     // 调用 created 钩子函数
     callHook(vm, 'created')
 
+    console.log(this)
+
     // 如果发现配置项上有 el 选项，则自动调用 $mount 方法，也就是说有了 el 选项，就不需要再手动调用 $mount，反之，没有 el 则必须手动调用 $mount
     if (vm.$options.el) {
       // src\platforms\web\runtime-with-compiler.ts
@@ -122,7 +123,6 @@ export function initInternalComponent(
 export function resolveConstructorOptions(Ctor: typeof Component) {
   // 配置项目
   let options = Ctor.options
-  console.log(options)
 
   if (Ctor.super) {
     // 存在基类，递归解析基类构造函数的选项
@@ -147,12 +147,20 @@ export function resolveConstructorOptions(Ctor: typeof Component) {
   return options
 }
 
+/**
+ * 解析构造函数选项中后续被修改或者增加的选项
+ * @param Ctor
+ * @returns
+ */
 function resolveModifiedOptions(
   Ctor: typeof Component
 ): Record<string, any> | null {
   let modified
+  // 构造函数选项
   const latest = Ctor.options
+  // 密封的构造函数选项，备份
   const sealed = Ctor.sealedOptions
+  // 对比两个选项，记录不一致的选项
   for (const key in latest) {
     if (latest[key] !== sealed[key]) {
       if (!modified) modified = {}

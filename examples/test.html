@@ -18,6 +18,9 @@
       // debugger
       const vue = new Vue({
         el: '#app',
+        props: {
+          name: String
+        },
         components: {
           // <runoob> 将只在父模板可用
           runoob: Child

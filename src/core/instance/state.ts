@@ -1,7 +1,5 @@
-import config from '../config'
 import Watcher from '../observer/watcher'
 import Dep, { pushTarget, popTarget } from '../observer/dep'
-import { isUpdatingChildComponent } from './lifecycle'
 import { initSetup } from 'v3/apiSetup'
 
 import {
@@ -18,14 +16,12 @@ import {
   noop,
   hasOwn,
   isArray,
-  hyphenate,
   isReserved,
   handleError,
   nativeWatch,
   validateProp,
   isPlainObject,
   isServerRendering,
-  isReservedAttribute,
   invokeWithErrorHandling,
   isFunction
 } from '../util/index'
@@ -49,8 +45,16 @@ export function proxy(target: Object, sourceKey: string, key: string) {
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
 
+/**
+ *
+ * @param vm
+ * 数据响应式的入口：分别处理 props, methods, data, computed, watch
+ * 优先级： props, methods, data,computed,watch 对象中的属性不能出现重复
+ *  其中computed 中的key 不能和props,data中的key重复 ，methods不影响
+ */
 export function initState(vm: Component) {
   const opts = vm.$options
+  // 给props对象每个属性设置响应式，并将其代理到vm实例上
   if (opts.props) initProps(vm, opts.props)
 
   // Composition API
@@ -72,6 +76,7 @@ export function initState(vm: Component) {
 function initProps(vm: Component, propsOptions: Object) {
   const propsData = vm.$options.propsData || {}
   const props = (vm._props = shallowReactive({}))
+  // 缓存props 的每个key ,性能优化
   // cache prop keys so that future props updates can iterate using Array
   // instead of dynamic object key enumeration.
   const keys: string[] = (vm.$options._propKeys = [])
@@ -83,48 +88,27 @@ function initProps(vm: Component, propsOptions: Object) {
   for (const key in propsOptions) {
     keys.push(key)
     const value = validateProp(key, propsOptions, propsData, vm)
-    /* istanbul ignore else */
-    if (__DEV__) {
-      const hyphenatedKey = hyphenate(key)
-      if (
-        isReservedAttribute(hyphenatedKey) ||
-        config.isReservedAttr(hyphenatedKey)
-      ) {
-        warn(
-          `"${hyphenatedKey}" is a reserved attribute and cannot be used as component prop.`,
-          vm
-        )
-      }
-      defineReactive(
-        props,
-        key,
-        value,
-        () => {
-          if (!isRoot && !isUpdatingChildComponent) {
-            warn(
-              `Avoid mutating a prop directly since the value will be ` +
-                `overwritten whenever the parent component re-renders. ` +
-                `Instead, use a data or computed property based on the prop's ` +
-                `value. Prop being mutated: "${key}"`,
-              vm
-            )
-          }
-        },
-        true /* shallow */
-      )
-    } else {
-      defineReactive(props, key, value, undefined, true /* shallow */)
-    }
+    // 为 props 的每个key 设置响应式
+    defineReactive(props, key, value, undefined, true /* shallow */)
     // static props are already proxied on the component's prototype
     // during Vue.extend(). We only need to proxy props defined at
     // instantiation here.
     if (!(key in vm)) {
+      // 代理key 到vm对象上
       proxy(vm, `_props`, key)
     }
   }
   toggleObserving(true)
 }
 
+/**
+ *
+ * @param vm
+ * 做了三件事
+ *  1. 判重处理，data对象上的属性不能和 props,methods对象的属性相同
+ *  2. 代理data所有对象到vm实例上
+ *  3. 为data 对象的数据设置响应式
+ */
 function initData(vm: Component) {
   let data: any = vm.$options.data
   data = vm._data = isFunction(data) ? getData(data, vm) : data || {}
@@ -180,6 +164,20 @@ export function getData(data: Function, vm: Component): any {
 
 const computedWatcherOptions = { lazy: true }
 
+/**
+ * 三件事：
+ *   1、为 computed[key] 创建 watcher 实例，默认是懒执行
+ *   2、代理 computed[key] 到 vm 实例
+ *   3、判重，computed 中的 key 不能和 data、props 中的属性重复
+ * @param {*} computed = {
+ *   key1: function() { return xx },
+ *   key2: {
+ *     get: function() { return xx },
+ *     set: function(val) {}
+ *   }
+ * }
+ */
+
 function initComputed(vm: Component, computed: Object) {
   // $flow-disable-line
   const watchers = (vm._computedWatchers = Object.create(null))
@@ -194,11 +192,13 @@ function initComputed(vm: Component, computed: Object) {
     }
 
     if (!isSSR) {
+      // 为computed 属性创建 watcher实例
       // create internal watcher for the computed property.
       watchers[key] = new Watcher(
         vm,
         getter || noop,
         noop,
+        // 配置项，computed默认是懒执行
         computedWatcherOptions
       )
     }
@@ -207,8 +207,11 @@ function initComputed(vm: Component, computed: Object) {
     // component prototype. We only need to define computed properties defined
     // at instantiation here.
     if (!(key in vm)) {
+      // 代理computed对象中的属性到vm实例
+      // 这样就可以使用 vm.computedKey 访问计算属性了
       defineComputed(vm, key, userDef)
     } else if (__DEV__) {
+      // 非生产环境有一个判重处理，computed 对象中的属性不能和 data,props中的属性相同
       if (key in vm.$data) {
         warn(`The computed property "${key}" is already defined in data.`, vm)
       } else if (vm.$options.props && key in vm.$options.props) {
@@ -282,6 +285,15 @@ function createGetterInvoker(fn) {
   }
 }
 
+/**
+ *
+ * 做了一下三件事，其中最关键的是第三件事情:
+ *  1. 校验methods[key] 是不是函数
+ *  2. 判重复
+ *        methods中的key 不能和 props中的key相同
+ *        methods 中的key 与Vue实例上已有方法不能重叠
+ *  3. 将methods[key] 放在vm实例上，得到vm[key] = methods[key]
+ */
 function initMethods(vm: Component, methods: Object) {
   const props = vm.$options.props
   for (const key in methods) {
@@ -309,6 +321,12 @@ function initMethods(vm: Component, methods: Object) {
   }
 }
 
+/**
+ *
+ * @param vm
+ * @param watch
+ *
+ */
 function initWatch(vm: Component, watch: Object) {
   for (const key in watch) {
     const handler = watch[key]
