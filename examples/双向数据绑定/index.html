@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">
+      {{msg}}<br />
+      {{name}}<br />
+      <div v-text="msg"></div>
+      <input v-model="msg" />
+    </div>
+    <script src="./vue.js"></script>
+    <script src="./array.js"></script>
+    <script src="./compiler.js"></script>
+    <script src="./observer.js"></script>
+    <script src="./watcher.js"></script>
+    <script src="./dep.js"></script>
+    <script src="./def.js"></script>
+    <script>
+      var vm = new Vue({
+        el: '#app',
+        data: {
+          msg: 'hello world',
+          name: 'yiwanka',
+          arr: [1, 2, 3]
+        }
+      })
+      console.log(vm.arr)
+      vm.arr.push(1)
+    </script>
+  </body>
+</html>
