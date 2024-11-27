@@ -82,8 +82,6 @@ export function initMixin(Vue: typeof Component) {
     // 调用 created 钩子函数
     callHook(vm, 'created')
 
-    console.log(this)
-
     // 如果发现配置项上有 el 选项，则自动调用 $mount 方法，也就是说有了 el 选项，就不需要再手动调用 $mount，反之，没有 el 则必须手动调用 $mount
     if (vm.$options.el) {
       // src\platforms\web\runtime-with-compiler.ts
@@ -123,13 +121,17 @@ export function initInternalComponent(
 export function resolveConstructorOptions(Ctor: typeof Component) {
   // 配置项目
   let options = Ctor.options
-
+  // 有super属性，说明Ctor是通过Vue.extend()方法创建的子类
   if (Ctor.super) {
     // 存在基类，递归解析基类构造函数的选项
+    // superOptions:获取父级的options
     const superOptions = resolveConstructorOptions(Ctor.super)
+    // Ctor上保存的superOptions
     const cachedSuperOptions = Ctor.superOptions
+    console.log(superOptions, cachedSuperOptions)
+
     if (superOptions !== cachedSuperOptions) {
-      // 说明基类构造函数选项已经发生改变，需要重新设置
+      // 如果两者不相同，说明父类构造函数选项已经发生改变，需要重新设置
       Ctor.superOptions = superOptions
       // 检查 Ctor.options 上是否有任何后期修改/附加的选项（＃4976）
       const modifiedOptions = resolveModifiedOptions(Ctor)

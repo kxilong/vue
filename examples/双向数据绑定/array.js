@@ -2,7 +2,6 @@ const arrayProto = Array.prototype
 const arrayMethods = Object.create(arrayProto)
 
 const methods = ['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse']
-console.log(arrayMethods)
 methods.forEach(method => {
   const original = arrayProto[method]
   Object.defineProperty(arrayMethods, method, {

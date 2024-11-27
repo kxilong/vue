@@ -18,11 +18,11 @@ import { ASTAttr, CompilerOptions } from 'types/compiler'
 const attribute =
   /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/
 const dynamicArgAttribute =
-  /^\s*((?:v-[\w-]+:|@|:|#)\[[^=]+?\][^\s"'<>\/=]*)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/
+  /^\s*((?:v-[\w-]+:|@|:|#)\[[^=]+?\][^\s"'<>\/=]*)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/ //捕获指令、表达式和值，并且能够处理带引号或不带引号的值。
 const ncname = `[a-zA-Z_][\\-\\.0-9_a-zA-Z${unicodeRegExp.source}]*`
 const qnameCapture = `((?:${ncname}\\:)?${ncname})`
 const startTagOpen = new RegExp(`^<${qnameCapture}`)
-const startTagClose = /^\s*(\/?)>/
+const startTagClose = /^\s*(\/?)>/ //匹配HTML标签的结束标签
 const endTag = new RegExp(`^<\\/${qnameCapture}[^>]*>`)
 const doctype = /^<!DOCTYPE [^>]+>/i
 // #7298: escape - to avoid being passed as HTML comment when inlined in page
@@ -74,6 +74,7 @@ export function parseHTML(html, options: HTMLParserOptions) {
   const isUnaryTag = options.isUnaryTag || no
   const canBeLeftOpenTag = options.canBeLeftOpenTag || no
   let index = 0
+  //last:用于保存还没有解析的模版部分
   let last, lastTag
   while (html) {
     last = html
@@ -82,6 +83,7 @@ export function parseHTML(html, options: HTMLParserOptions) {
       let textEnd = html.indexOf('<')
       if (textEnd === 0) {
         // Comment:
+        // 过滤掉注释，doctype等
         if (comment.test(html)) {
           const commentEnd = html.indexOf('-->')
 
@@ -126,6 +128,8 @@ export function parseHTML(html, options: HTMLParserOptions) {
 
         // Start tag:
         const startTagMatch = parseStartTag()
+        // console.log(startTagMatch)
+
         if (startTagMatch) {
           handleStartTag(startTagMatch)
           if (shouldIgnoreFirstNewline(startTagMatch.tagName, html)) {
@@ -207,13 +211,16 @@ export function parseHTML(html, options: HTMLParserOptions) {
   // Clean up any remaining tags
   parseEndTag()
 
+  // 把html从n位置开始截取，并且记录索引index的位置
   function advance(n) {
     index += n
     html = html.substring(n)
   }
 
   function parseStartTag() {
+    // 匹配标签名
     const start = html.match(startTagOpen)
+
     if (start) {
       const match: any = {
         tagName: start[1],
@@ -221,7 +228,9 @@ export function parseHTML(html, options: HTMLParserOptions) {
         start: index
       }
       advance(start[0].length)
+
       let end, attr
+      // 匹配起始标签内的属性
       while (
         !(end = html.match(startTagClose)) &&
         (attr = html.match(dynamicArgAttribute) || html.match(attribute))
@@ -231,6 +240,7 @@ export function parseHTML(html, options: HTMLParserOptions) {
         attr.end = index
         match.attrs.push(attr)
       }
+      // 是不是单标签
       if (end) {
         match.unarySlash = end[1]
         advance(end[0].length)

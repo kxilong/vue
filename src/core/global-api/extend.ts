@@ -11,6 +11,7 @@ export function initExtend(Vue: GlobalAPI) {
    * cid. This enables us to create wrapped "child
    * constructors" for prototypal inheritance and cache them.
    */
+  // 每个继承Vue对象都有唯一的cid,之后每次通过Vue.extend 创建的子类的cid值都会依次递增
   Vue.cid = 0
   let cid = 1
 
@@ -19,8 +20,11 @@ export function initExtend(Vue: GlobalAPI) {
    */
   Vue.extend = function (extendOptions: any): typeof Component {
     extendOptions = extendOptions || {}
+    console.log(extendOptions)
+    // 这里this其实就是Vue本身
     const Super = this
     const SuperId = Super.cid
+    // extendOptions._Ctor用于缓存构造函数
     const cachedCtors = extendOptions._Ctor || (extendOptions._Ctor = {})
     if (cachedCtors[SuperId]) {
       return cachedCtors[SuperId]

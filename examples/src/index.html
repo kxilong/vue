@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">
+      {{msg}}<br />
+      {{name}}<br />
+      <div v-text="msg"></div>
+      <input v-model="msg" />
+    </div>
+    <script src="./vdom/index.js"></script>
+    <script src="./render.js"></script>
+    <script src="./vdom/patch.js"></script>
+    <script src="./lifecycle.js"></script>
+    <script src="./vue.js"></script>
+    <script src="./compiler.js"></script>
+    <script src="./init.js"></script>
+
+    <script>
+      var vm = new Vue({
+        el: '#app',
+        data: {
+          msg: 'hello world',
+          name: 'yiwanka',
+          arr: [1, 2, 3],
+          title: '我是template',
+          url: '/abc',
+          img: 'https://ts3.cn.mm.bing.net/th?id=OIP-C.O5bdv5ksIQo7pfNscU0_IAHaH6&w=80&h=80&c=1&vt=10&bgcl=59e41c&r=0&o=6&dpr=2&pid=5.1'
+        },
+        template: `<div id="app">
+                  这里是文本箭头之后的文本
+                  <a :href="url" target="_blank">
+                    前面的文本 {{ title }} 后面的文本
+                  </a>
+                  <img :src="img"/>
+            </div>`
+      })
+    </script>
+  </body>
+</html>

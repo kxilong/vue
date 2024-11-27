@@ -67,18 +67,21 @@ export function lifecycleMixin(Vue: typeof Component) {
   Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
     const vm: Component = this
     const prevEl = vm.$el
-    const prevVnode = vm._vnode
+    const prevVnode = vm._vnode //旧的vnode
     const restoreActiveInstance = setActiveInstance(vm)
     vm._vnode = vnode
     // Vue.prototype.__patch__ is injected in entry points
     // based on the rendering backend used.
     // 核心就是调用 vm.__patch__ 方法
     // 方法代码位置: src\platforms\web\runtime\index.ts
+    // 第一次创建时没有旧的vnode， 所以!prevVnode返回true
     if (!prevVnode) {
       // initial render
+      // 创建根据vnode直接绘制dom到页面中
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */)
     } else {
       // updates
+      // 当数据更新再次调用_update方法时，preVnode是旧的vnod,传入新旧两个虚拟dom对象，进行diff运算，并相应修改页面
       vm.$el = vm.__patch__(prevVnode, vnode)
     }
     restoreActiveInstance()

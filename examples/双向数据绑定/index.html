@@ -26,9 +26,16 @@
           msg: 'hello world',
           name: 'yiwanka',
           arr: [1, 2, 3]
-        }
+        },
+        template: `<div id="app">
+              这里是文本箭头之后的文本
+              <a :href="url" target="_blank">
+                前面的文本 {{ title }} 后面的文本
+              </a>
+              <img :src="img"/>
+            </div>`
       })
-      console.log(vm.arr)
+      // console.log(vm.arr)
       vm.arr.push(1)
     </script>
   </body>

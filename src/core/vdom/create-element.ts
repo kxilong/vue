@@ -87,6 +87,8 @@ export function _createElement(
       context
     )
   }
+  console.log(children, isFunction(children[0]))
+
   // support single function children as default scoped slot
   if (isArray(children) && isFunction(children[0])) {
     data = data || {}

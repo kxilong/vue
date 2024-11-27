@@ -28,19 +28,19 @@ import {
   CompilerOptions
 } from 'types/compiler'
 
-export const onRE = /^@|^v-on:/
+export const onRE = /^@|^v-on:/ //匹配@ 或 v-on开头的属性，也就是我们添加事件语法
 export const dirRE = process.env.VBIND_PROP_SHORTHAND
   ? /^v-|^@|^:|^\.|^#/
-  : /^v-|^@|^:|^#/
-export const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
-export const forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/
+  : /^v-|^@|^:|^#/ //v- 或 @ 或 ： 开头的属性，即vue中的绑定数据或事件的语法
+export const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/ //匹配v-for中的属性值
+export const forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/ // 匹配forAliasRE中捕获的第一部分内容，进行拆解
 const stripParensRE = /^\(|\)$/g
 const dynamicArgRE = /^\[.*\]$/
 
-const argRE = /:(.*)$/
-export const bindRE = /^:|^\.|^v-bind:/
+const argRE = /:(.*)$/ // 开头属性
+export const bindRE = /^:|^\.|^v-bind:/ // 匹配 ：或v-bind 开头属性
 const propBindRE = /^\./
-const modifierRE = /\.[^.\]]+(?=[^\]]*$)/g
+const modifierRE = /\.[^.\]]+(?=[^\]]*$)/g // 匹配属性中修饰符
 
 export const slotRE = /^v-slot(:|$)|^#/
 
@@ -84,11 +84,13 @@ export function createASTElement(
  * Convert HTML string to AST.
  */
 export function parse(template: string, options: CompilerOptions): ASTElement {
+  // console.log(template, options)
+
   warn = options.warn || baseWarn
 
-  platformIsPreTag = options.isPreTag || no
-  platformMustUseProp = options.mustUseProp || no
-  platformGetTagNamespace = options.getTagNamespace || no
+  platformIsPreTag = options.isPreTag || no // 是不是pre标签
+  platformMustUseProp = options.mustUseProp || no // 判断是否需要通过绑定prop来绑定属性
+  platformGetTagNamespace = options.getTagNamespace || no //获取tag的命名空间
   const isReservedTag = options.isReservedTag || no
   maybeComponent = (el: ASTElement) =>
     !!(
@@ -101,7 +103,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
   preTransforms = pluckModuleFunction(options.modules, 'preTransformNode')
   postTransforms = pluckModuleFunction(options.modules, 'postTransformNode')
 
-  delimiters = options.delimiters
+  delimiters = options.delimiters //分隔符
 
   const stack: any[] = []
   const preserveWhitespace = options.preserveWhitespace !== false
@@ -215,7 +217,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
   parseHTML(template, {
     warn,
     expectHTML: options.expectHTML,
-    isUnaryTag: options.isUnaryTag,
+    isUnaryTag: options.isUnaryTag, //是否是单标签
     canBeLeftOpenTag: options.canBeLeftOpenTag,
     shouldDecodeNewlines: options.shouldDecodeNewlines,
     shouldDecodeNewlinesForHref: options.shouldDecodeNewlinesForHref,

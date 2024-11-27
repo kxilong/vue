@@ -5,31 +5,21 @@
     <title>Vue 源码解读</title>
   </head>
   <body>
-    <div id="app">
-      {{ msg }}
-      <runoob></runoob>
-    </div>
+    <div id="mount-point"></div>
     <script src="../dist/vue.js"></script>
     <script>
-      var Child = {
-        template: '<h1>自定义组件!</h1>'
-      }
-
-      // debugger
-      const vue = new Vue({
-        el: '#app',
-        props: {
-          name: String
-        },
-        components: {
-          // <runoob> 将只在父模板可用
-          runoob: Child
-        },
-        data: {
-          msg: 'hello vue'
+      var Profile = Vue.extend({
+        template: '<p>{{firstName}} {{lastName}} aka {{alias}}</p >',
+        data: function () {
+          return {
+            firstName: 'Walter',
+            lastName: 'White',
+            alias: 'Heisenberg'
+          }
         }
       })
-      // console.log(vue)
+
+      new Profile().$mount('#mount-point')
     </script>
   </body>
 </html>

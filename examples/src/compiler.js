@@ -145,7 +145,6 @@ function gen(node) {
   } else {
     // 如果是文本节点
     let text = node.text
-    console.log(text)
     // 不存在花括号变量表达式
     if (!defaultTagRE.test(text)) {
       return `_v(${JSON.stringify(text)})`
@@ -170,20 +169,26 @@ function gen(node) {
   }
 }
 
-function genProps(attrs) {
-  let result = {}
-  for (let i = 0; i < attrs.length; i++) {
-    let attr = attrs[i]
-    result[`${attr.name}`] = attr.value
+function genProps(props) {
+  let staticProps = ``
+  for (let i = 0; i < props.length; i++) {
+    const prop = props[i]
+    const name = prop.name.indexOf(':') == -1 ? prop.name : prop.name.slice(1)
+    const value =
+      prop.name.indexOf(':') == -1 ? JSON.stringify(prop.value) : prop.value
+    staticProps += `"${name}":${value},`
   }
-  return JSON.stringify({
-    attrs: result
-  })
+  staticProps = `{attrs:{${staticProps.slice(0, -1)}}}`
+
+  return staticProps
+}
+
+function transformSpecialNewlines(text) {
+  return text.replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029')
 }
 
 function getChildren(el) {
   const children = el.children
-  // console.log(children)
   if (children) {
     return `${children.map(c => gen(c)).join(',')}`
   }
